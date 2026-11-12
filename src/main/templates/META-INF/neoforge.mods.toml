@@ -1,0 +1,48 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+# Impedisce ai client vanilla di venire bloccati se non hanno questa mod installata
+displayTest="IGNORE_ALL_VERSION"
+displayURL="https://github.com/Tco801/Create-Train-Traveller"
+issueTrackerURL="https://github.com/Tco801/Create-Train-Traveller/issues"
+#logoFile="logo.png"
+authors="PlayerE464"
+description='''
+Server-side web dashboard and live telemetry API for Create Railways Navigator.
+Monitor trains, stations, delays, and schedules directly from your browser.
+'''
+
+# Scommenta se in futuro userai Mixin o Access Transformers per modificare classi interne di Create/CRN
+#[[mixins]]
+#config="${mod_id}.mixins.json"
+
+#[[accessTransformers]]
+#file="META-INF/accesstransformer.cfg"
+
+# --- DIPENDENZE OBBLIGATORIE ---
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[4,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="createrailwaysnavigator"
+    type="required"
+    versionRange="[0.5,)"
+    ordering="AFTER"
+    side="BOTH"

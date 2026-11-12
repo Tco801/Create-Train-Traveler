@@ -1,0 +1,56 @@
+{
+  "R": {
+    "name": "Regionale",
+    "logo": "regionale.png"
+  },
+
+  "RV": {
+    "name": "Regionale Veloce",
+    "logo": "regionale.png"
+  },
+
+  "RE": {
+    "name": "Reggio Express",
+    "logo": "reggio_express.png"
+  },
+
+  "IC": {
+    "name": "Intercity",
+    "logo": "Intercity.png"
+  },
+
+  "ICN": {
+    "name": "Intercity_notte",
+    "logo": "Intercity.png"
+  },
+
+  "S": {
+    "name": "Suburbana",
+    "logo": "Suburbano.png"
+  },
+
+  "LE": {
+    "name": "Leonardo_Express",
+    "logo": "leonardo_express.png"
+  },
+
+  "FB": {
+    "name": "Frecciabianca",
+    "logo": "frecciabianca.png"
+  },
+
+  "FA": {
+    "name": "Frecciargento",
+    "logo": "frecciargento.png"
+  },
+
+  "FR": {
+    "name": "Frecciarossa",
+    "logo": "frecciarossa.png"
+  },
+
+  "NTV": {
+    "name": "NTV",
+    "logo": "italo.png"
+  }
+}
