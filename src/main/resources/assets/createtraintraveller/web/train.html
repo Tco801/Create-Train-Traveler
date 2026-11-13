@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dettaglio Treno</title>
+    <title>Train details</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -18,13 +18,13 @@
     >
     <div class="header-text">
         <h1>Train Traveller</h1>
-        <p>Monitoraggio ferroviario in tempo reale</p>
+        <p>Real time train tracking</p>
     </div>
 </header>
 
 <nav class="navbar">
-    <a href="index.html">🏠 Home</a>
-    <a href="navigate.html">🔍 Percorsi</a>
+    <a href="index.html">Home</a>
+    <a href="navigate.html">Routes</a>
 </nav>
 
 <div class="status-bar">
@@ -36,7 +36,7 @@
 
     <!-- HEADER TRENO -->
     <section class="card train-header-card">
-        <div id="trainName">Caricamento...</div>
+        <div id="trainName">Loading...</div>
     </section>
 
     <!-- INFO TRENO (Tutto dentro un unico riquadro .card) -->
@@ -47,15 +47,15 @@
     <!-- PERCORSO -->
     <section class="card">
         <div class="section-header">
-            <h3>🚆 Percorso del treno</h3>
+            <h3>Train Route</h3>
         </div>
         <table class="stop-list">
             <thead>
                 <tr>
-                    <th>Stazione</th>
-                    <th>Bin.</th>
-                    <th>Arrivo</th>
-                    <th>Partenza</th>
+                    <th>Station</th>
+                    <th>Platform</th>
+                    <th>Arrival</th>
+                    <th>Departure</th>
                 </tr>
             </thead>
             <tbody id="stops"></tbody>

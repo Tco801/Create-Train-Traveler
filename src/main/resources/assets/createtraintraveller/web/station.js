@@ -2,99 +2,62 @@ import {
     getTrains,
     getJourney,
     getCategoryInfo,
-    getTime
+    getTime,
+    minecraftTimeToClock,
+    getStationTagName,
+    extractPlatform,
+    extractSections
 } from "./api.js";
 
 const params = new URLSearchParams(window.location.search);
 const stationName = params.get("name");
 
-const board = document.getElementById("board");
+const board = document.getElementById("board") || document.querySelector("tbody");
 const mcTimeSpan = document.getElementById("mcTime");
+const serverStatusSpan = document.getElementById("serverStatus");
+const titleEl = document.getElementById("stationTitle") || document.querySelector("h1");
 
-document.getElementById("stationTitle").textContent = stationName 
-    ? `Stazione di ${stationName}` 
-    : "Stazione non specificata";
-
-function minecraftTimeToClock(time) {
-    if (time === undefined || time === null) return "--:--";
-
-    // Se è già una stringa formattata "HH:MM"
-    if (typeof time === "string" && time.includes(":")) {
-        return time;
-    }
-
-    let numTime = Number(time);
-    if (isNaN(numTime)) return "--:--";
-
-    // Normalizza i tick negativi nel range di 24 ore (24000 tick per giorno in Minecraft)
-    if (numTime < 0) {
-        numTime = (numTime % 24000 + 24000) % 24000;
-    }
-
-    // Calcola i minuti totali trascorsi dalle 06:00
-    let totalMinutes = Math.floor(numTime * 0.06);
-    
-    // Normalizza i minuti nel formato delle 24 ore (1440 minuti in un giorno)
-    totalMinutes = (totalMinutes % 1440 + 1440) % 1440;
-
-    let hours = (Math.floor(totalMinutes / 60) + 6) % 24;
-    const minutes = totalMinutes % 60;
-
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+if (titleEl) {
+    titleEl.textContent = stationName
+        ? `${stationName} Station`
+        : "Station not specified";
 }
 
 async function updateClock() {
     try {
         const timeData = await getTime();
-        if (timeData && timeData.time !== undefined && mcTimeSpan) {
-            mcTimeSpan.textContent = `🕒 Ora Minecraft: ${minecraftTimeToClock(timeData.time)}`;
+        if (timeData && timeData.time !== undefined) {
+            if (mcTimeSpan) mcTimeSpan.textContent = `Minecraft time: ${minecraftTimeToClock(timeData.time)}`;
+            if (serverStatusSpan) serverStatusSpan.textContent = "🟢 Server Online";
         }
     } catch (err) {
-        console.error("Errore recupero ora:", err);
+        console.error("Error fetching time:", err);
+        if (serverStatusSpan) serverStatusSpan.textContent = "🔴 Server Offline";
     }
-}
-
-function getStationTagName(stationObj) {
-    if (!stationObj) return null;
-    if (typeof stationObj === "string") return stationObj;
-    return stationObj.tag_name || stationObj.name || stationObj.station?.tag_name || stationObj.station?.name || null;
-}
-
-function extractPlatform(currentStop, train) {
-    if (currentStop) {
-        if (currentStop.info?.platform) return currentStop.info.platform;
-        if (currentStop.platform) return currentStop.platform;
-        if (currentStop.station?.info?.platform) return currentStop.station.info.platform;
-        if (currentStop.station?.platform) return currentStop.station.platform;
-    }
-
-    if (train?.next_station) {
-        if (train.next_station.info?.platform) return train.next_station.info.platform;
-        if (train.next_station.platform) return train.next_station.platform;
-    }
-
-    return "-";
 }
 
 async function loadBoard() {
+    if (!board) return;
+
     if (!stationName) {
         board.innerHTML = `
             <tr>
                 <td colspan="6" style="text-align: center; padding: 20px;">
-                    Nessuna stazione selezionata nell'URL (es. <code>?name=NomeStazione</code>).
+                    No station selected in URL (e.g. <code>?name=StationName</code>).
                 </td>
             </tr>`;
         return;
     }
 
     try {
-        const trains = await getTrains();
+        const trainsData = await getTrains();
+        const trains = Array.isArray(trainsData) ? trainsData : (trainsData?.trains || []);
 
-        if (!Array.isArray(trains) || trains.length === 0) {
+        if (trains.length === 0) {
             board.innerHTML = `
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 20px;">
-                        Nessun treno attivo al momento.
+                        No active trains at the moment.
                     </td>
                 </tr>`;
             return;
@@ -102,113 +65,101 @@ async function loadBoard() {
 
         const journeyPromises = trains.map(train => {
             const journeyId = train.id ?? train.train_id ?? train.uuid ?? train.train_name;
-
-            if (journeyId === undefined || journeyId === null) {
-                return Promise.resolve(null);
-            }
-
+            if (journeyId === undefined || journeyId === null) return Promise.resolve(null);
             return getJourney(journeyId)
                 .then(journey => ({ train, journey }))
-                .catch(err => {
-                    console.warn(`Impossibile caricare il percorso per l'ID ${journeyId}:`, err);
-                    return null;
-                });
+                .catch(() => null);
         });
 
         const results = await Promise.all(journeyPromises);
         const departures = [];
-
         const targetStationClean = stationName.trim().toLowerCase();
 
         for (const res of results) {
             if (!res || !res.journey) continue;
 
             const { train, journey } = res;
-            const stops = Array.isArray(journey) ? journey : (journey.stops || []);
+            const sections = extractSections(journey);
 
-            if (!Array.isArray(stops) || stops.length === 0) continue;
+            for (const section of sections) {
+                if (!section.usable || !Array.isArray(section.stops) || section.stops.length === 0) {
+                    continue;
+                }
 
-            const stopIndex = stops.findIndex(s => {
-                const name = getStationTagName(s) || getStationTagName(s.station);
-                return typeof name === "string" && name.trim().toLowerCase() === targetStationClean;
-            });
+                const stops = section.stops;
+                const stopIndex = stops.findIndex(s => {
+                    const name = getStationTagName(s);
+                    return typeof name === "string" && name.trim().toLowerCase() === targetStationClean;
+                });
 
-            if (stopIndex === -1 || stopIndex === stops.length - 1) {
-                continue;
+                if (stopIndex === -1 || stopIndex === stops.length - 1) {
+                    continue;
+                }
+
+                const currentStop = stops[stopIndex];
+                const destName = section.destination;
+
+                const nextStops = stops
+                    .slice(stopIndex + 1)
+                    .map(s => getStationTagName(s))
+                    .filter(Boolean);
+
+                const platform = extractPlatform(currentStop, train.next_station);
+
+                const rawTime = currentStop.realtime?.departure
+                    ?? currentStop.scheduled?.departure
+                    ?? currentStop.realtime?.arrival
+                    ?? currentStop.scheduled?.arrival
+                    ?? 0;
+
+                departures.push({
+                    train,
+                    section,
+                    destination: destName,
+                    nextStops,
+                    platform,
+                    arrivalTime: rawTime
+                });
             }
-
-            const currentStop = stops[stopIndex];
-            const lastStop = stops[stops.length - 1];
-
-            // LOG DIAGNOSTICO: Ispezione della struttura degli orari per la fermata corrente
-            console.log("Fermata trovata per train", train.train_name, "-> Struttura fermata:", currentStop);
-
-            const destName = getStationTagName(lastStop) || getStationTagName(lastStop.station) || "Destinazione Sconosciuta";
-
-            const nextStops = stops
-                .slice(stopIndex + 1)
-                .map(s => getStationTagName(s) || getStationTagName(s.station))
-                .filter(Boolean);
-
-            const platform = extractPlatform(currentStop, train);
-
-            // Ricerca flessibile su tutti i possibili percorsi dell'oggetto fermata
-            const rawTime = currentStop.scheduled?.departure 
-                ?? currentStop.scheduled?.arrival 
-                ?? currentStop.departure_time 
-                ?? currentStop.arrival_time
-                ?? currentStop.departureTime 
-                ?? currentStop.arrivalTime 
-                ?? currentStop.time 
-                ?? currentStop.departure
-                ?? currentStop.arrival;
-
-            departures.push({
-                train,
-                currentStop,
-                destination: destName,
-                nextStops,
-                platform,
-                arrivalTime: rawTime
-            });
         }
 
-        departures.sort((a, b) => {
-            const timeA = typeof a.arrivalTime === 'number' ? a.arrivalTime : 0;
-            const timeB = typeof b.arrivalTime === 'number' ? b.arrivalTime : 0;
-            return timeA - timeB;
-        });
+        departures.sort((a, b) => (Number(a.arrivalTime) || 0) - (Number(b.arrivalTime) || 0));
 
         if (departures.length === 0) {
             board.innerHTML = `
                 <tr>
                     <td colspan="6" style="text-align: center; padding: 20px;">
-                        Nessuna partenza prevista per la stazione <strong>${stationName}</strong>.
+                        No scheduled departures for <strong>${stationName}</strong>.
                     </td>
                 </tr>`;
             return;
         }
 
         const rowsHtml = await Promise.all(departures.map(async (dep) => {
-            const trainName = dep.train.train_name || dep.train.name || dep.train.id || "Treno";
+            const trainName = dep.train.train_name || dep.train.name || dep.train.id || "Train";
             const trainIdParam = dep.train.id ?? dep.train.train_id ?? dep.train.uuid ?? trainName;
-            
-            const categoryInfo = await getCategoryInfo(dep.train.category);
+
+            const rawCategory = dep.section.category || dep.train.category;
+            const categoryInfo = await getCategoryInfo(rawCategory);
 
             let categoryHtml = "";
             if (categoryInfo && categoryInfo.logo) {
-                categoryHtml = `<img src="${categoryInfo.logo}" class="operator-logo" alt="${categoryInfo.name || 'Categoria'}">`;
+                categoryHtml = `<img src="${categoryInfo.logo}" class="operator-logo" alt="${categoryInfo.name || 'Category'}">`;
             } else {
-                const rawCat = dep.train.category;
-                const catText = typeof rawCat === 'object' ? (rawCat.name || rawCat.code || 'Treno') : (rawCat || 'Treno');
-                categoryHtml = `<span class="category-pill" style="background-color: #173252;">${catText}</span>`;
+                const catText = typeof rawCategory === "object" && rawCategory !== null
+                    ? (rawCategory.name || rawCategory.code || "Train")
+                    : (rawCategory || "Train");
+                const bgColor = (typeof rawCategory === "object" && rawCategory?.color && rawCategory.color !== "#00000000")
+                    ? rawCategory.color
+                    : "#173252";
+                categoryHtml = `<span class="category-pill" style="background-color: ${bgColor};">${catText}</span>`;
             }
 
             return `
                 <tr>
                     <td>${categoryHtml}</td>
                     <td>
-                        <a href="train.html?id=${encodeURIComponent(trainIdParam)}" style="color: #173252; font-weight: bold; text-decoration: underline;">
+                        <a href="train.html?id=${encodeURIComponent(trainIdParam)}&section=${dep.section.index}" style="color: #173252; font-weight: bold; text-decoration: underline;">
                             ${trainName}
                         </a>
                     </td>
@@ -223,11 +174,11 @@ async function loadBoard() {
         board.innerHTML = rowsHtml.join("");
 
     } catch (err) {
-        console.error("Errore tabellone:", err);
+        console.error("Error loading board:", err);
         board.innerHTML = `
             <tr>
                 <td colspan="6" style="text-align: center; color: #dc2626; padding: 20px;">
-                    Errore nel recupero dei dati dal server.
+                    Error fetching data from server.
                 </td>
             </tr>`;
     }

@@ -65,4 +65,8 @@ public class CreateTrainTraveller {
             );
         }
     }
+    @SubscribeEvent
+    public void onRegisterCommands(net.neoforged.neoforge.event.RegisterCommandsEvent event) {
+        TrainTravellerCommand.register(event.getDispatcher());
+    }
 }
