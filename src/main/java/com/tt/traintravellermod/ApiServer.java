@@ -1,15 +1,16 @@
 package com.tt.traintravellermod;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import de.mrjulsen.crn.api.json.JsonConvert;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +18,6 @@ import java.util.concurrent.Executors;
 
 public class ApiServer {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ApiServer.class);
-    private static final Gson GSON = new Gson();
     private static final String WEB_ROOT = "/assets/createtraintraveller/web";
 
     private static HttpServer server;
@@ -86,6 +86,13 @@ public class ApiServer {
                     return;
                 }
 
+                if ("/crn/api/v1/time".equals(path)) {
+                    sendJson(exchange, 200, Map.of(
+                            "time", currentSnapshot.worldTime
+                    ));
+                    return;
+                }
+
                 if ("/crn/api/v1/stations".equals(path)) {
                     sendJson(exchange, 200, currentSnapshot.stations);
                     return;
@@ -93,6 +100,21 @@ public class ApiServer {
 
                 if ("/crn/api/v1/trains".equals(path)) {
                     sendJson(exchange, 200, currentSnapshot.trains);
+                    return;
+                }
+
+                if (path.startsWith("/crn/api/v1/train/") && path.endsWith("/journey")) {
+                    String encodedId = path.substring("/crn/api/v1/train/".length(), path.length() - "/journey".length());
+                    String trainId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+
+                    Map<String, Object> matchedTrain = findTrainById(trainId);
+                    if (matchedTrain == null) {
+                        sendJson(exchange, 404, Map.of("error", "train not found", "id", trainId));
+                        return;
+                    }
+
+                    Object journeyPayload = matchedTrain.containsKey("journey") ? matchedTrain.get("journey") : matchedTrain;
+                    sendJson(exchange, 200, journeyPayload);
                     return;
                 }
 
@@ -117,6 +139,27 @@ public class ApiServer {
             LOGGER.error("Error while handling HTTP request", e);
             sendJson(exchange, 500, Map.of("error", "internal server error"));
         }
+    }
+
+    private static Map<String, Object> findTrainById(String targetId) {
+        if (targetId == null || currentSnapshot == null || currentSnapshot.trains == null) {
+            return null;
+        }
+        for (Map<String, Object> train : currentSnapshot.trains) {
+            if (matchesField(train, "id", targetId)
+                    || matchesField(train, "train_id", targetId)
+                    || matchesField(train, "uuid", targetId)
+                    || matchesField(train, "train_name", targetId)
+                    || matchesField(train, "name", targetId)) {
+                return train;
+            }
+        }
+        return null;
+    }
+
+    private static boolean matchesField(Map<String, Object> map, String key, String target) {
+        Object val = map.get(key);
+        return val != null && target.equals(String.valueOf(val));
     }
 
     private static void serveStaticAsset(HttpExchange exchange, String path) throws IOException {
@@ -173,7 +216,7 @@ public class ApiServer {
     }
 
     private static void sendJson(HttpExchange exchange, int statusCode, Object payload) throws IOException {
-        byte[] response = GSON.toJson(payload).getBytes(StandardCharsets.UTF_8);
+        byte[] response = JsonConvert.toJson(payload).getBytes(StandardCharsets.UTF_8);
         Headers headers = exchange.getResponseHeaders();
         headers.set("Content-Type", "application/json; charset=UTF-8");
         addCorsHeaders(headers);
