@@ -13,9 +13,9 @@ const params = new URLSearchParams(window.location.search);
 const trainId = params.get("id");
 const requestedSection = params.get("section");
 
-const trainTitle = document.getElementById("trainTitle") || document.querySelector("h1");
-const trainHeaderInfo = document.getElementById("trainHeaderInfo");
-const stopsContainer = document.getElementById("stopsContainer") || document.getElementById("trainStops");
+const trainNameEl = document.getElementById("trainName");
+const trainInfoEl = document.getElementById("trainInfo");
+const stopsBody = document.getElementById("stops");
 const mcTimeSpan = document.getElementById("mcTime");
 const serverStatusSpan = document.getElementById("serverStatus");
 
@@ -34,7 +34,7 @@ async function updateClock() {
 
 async function loadTrainDetails() {
     if (!trainId) {
-        if (trainTitle) trainTitle.textContent = "Train not specified";
+        if (trainNameEl) trainNameEl.textContent = "Train not specified";
         return;
     }
 
@@ -45,7 +45,10 @@ async function loadTrainDetails() {
         ]);
 
         const trains = Array.isArray(trainsData) ? trainsData : (trainsData?.trains || []);
-        const trainMeta = trains.find(t => String(t.id ?? t.train_id ?? t.uuid ?? t.train_name) === String(trainId));
+        const trainMeta = trains.find(t =>
+            String(t.id ?? t.train_id ?? t.uuid ?? t.train_name) === String(trainId)
+            || String(t.train_name ?? t.name) === String(trainId)
+        );
 
         const trainName = journey?.train_name || trainMeta?.train_name || trainMeta?.name || trainId;
         const sections = extractSections(journey);
@@ -71,28 +74,55 @@ async function loadTrainDetails() {
             categoryHtml = `<span class="category-pill" style="background-color: ${bgColor};">${catText}</span>`;
         }
 
-        if (trainTitle) {
-            trainTitle.innerHTML = `${categoryHtml} <span>Train ${trainName}</span>`;
-        }
-
-        if (trainHeaderInfo && activeSection) {
-            trainHeaderInfo.innerHTML = `
-                <div style="margin-top: 8px; font-size: 1.05rem;">
-                    Current route: <strong>${activeSection.origin}</strong> → <strong>${activeSection.destination}</strong>
+        if (trainNameEl) {
+            trainNameEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    ${categoryHtml}
+                    <span class="train-header">${trainName}</span>
                 </div>
             `;
         }
 
-        if (!stopsContainer) return;
+        if (trainInfoEl) {
+            const routeText = activeSection
+                ? `${activeSection.origin} → ${activeSection.destination}`
+                : "N/A";
+            const nextStationText = getStationTagName(trainMeta?.next_station) || "-";
+            const statusText = trainMeta?.live_state || trainMeta?.service_state || "IN SERVICE";
+
+            trainInfoEl.innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-label">Route</span>
+                    <div class="stat-value" style="font-size: 1.15rem;">${routeText}</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Next Station</span>
+                    <div class="stat-value" style="font-size: 1.15rem;">${nextStationText}</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Status</span>
+                    <div class="stat-value" style="font-size: 1.15rem;">${statusText}</div>
+                </div>
+            `;
+        }
+
+        if (!stopsBody) return;
 
         if (sections.length === 0) {
-            stopsContainer.innerHTML = `<p style="padding: 20px;">No stops available for this train.</p>`;
+            stopsBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 20px;">
+                        No stops available for this train.
+                    </td>
+                </tr>`;
             return;
         }
 
-        const sectionsHtml = sections.map((sec) => {
-            const isCurrentSection = sec.index === (journey?.current_section_index ?? 0);
-            const isNextSection = sec.index > (journey?.current_section_index ?? 0);
+        const currentSectionIndex = journey?.current_section_index ?? 0;
+
+        const rowsHtml = sections.map((sec) => {
+            const isCurrentSection = sec.index === currentSectionIndex;
+            const isNextSection = sec.index > currentSectionIndex;
 
             let badgeHtml = "";
             if (isCurrentSection) {
@@ -101,7 +131,15 @@ async function loadTrainDetails() {
                 badgeHtml = `<span style="background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; margin-left: 8px;">Next Schedule Section</span>`;
             }
 
-            const rows = sec.stops.map((stop, idx) => {
+            const sectionHeaderRow = `
+                <tr style="background: #f1f5f9;">
+                    <td colspan="4" style="font-weight: bold; color: #173252;">
+                        Section ${sec.index + 1}: ${sec.origin} → ${sec.destination} ${badgeHtml}
+                    </td>
+                </tr>
+            `;
+
+            const stopRows = sec.stops.map((stop, idx) => {
                 const stName = getStationTagName(stop) || "Station";
                 const platform = extractPlatform(stop);
 
@@ -113,59 +151,40 @@ async function loadTrainDetails() {
                 const isCurrentStop = isCurrentSection && sec.currentStopIndex === idx;
                 const isPassed = isCurrentSection && sec.currentStopIndex > idx;
 
-                const rowStyle = isCurrentStop
-                    ? "background-color: #fef9c3; font-weight: bold;"
-                    : (isPassed ? "opacity: 0.6;" : "");
+                const rowClass = isCurrentStop ? "current" : (isPassed ? "completed" : "future");
 
                 const arrDisplay = idx === 0 ? "-" : minecraftTimeToClock(realArr);
                 const depDisplay = idx === sec.stops.length - 1 ? "-" : minecraftTimeToClock(realDep);
 
                 return `
-                    <tr style="${rowStyle}">
+                    <tr class="${rowClass}">
                         <td>
                             <a href="station.html?name=${encodeURIComponent(stName)}" style="color: #173252; text-decoration: underline;">
                                 ${stName}
                             </a>
                             ${isCurrentStop ? " 🚆" : ""}
                         </td>
+                        <td><strong>${platform}</strong></td>
                         <td>${arrDisplay}</td>
                         <td>${depDisplay}</td>
-                        <td><strong>${platform}</strong></td>
                     </tr>
                 `;
             }).join("");
 
-            return `
-                <div class="section-block" style="margin-bottom: 24px; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff;">
-                    <div style="background: #f1f5f9; padding: 12px 16px; border-bottom: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-                        <div>
-                            <strong>Section ${sec.index + 1}:</strong> ${sec.origin} → ${sec.destination}
-                            ${badgeHtml}
-                        </div>
-                    </div>
-                    <table class="board-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr>
-                                <th>Station</th>
-                                <th>Arrival</th>
-                                <th>Departure</th>
-                                <th>Platform</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            return sectionHeaderRow + stopRows;
         }).join("");
 
-        stopsContainer.innerHTML = sectionsHtml;
+        stopsBody.innerHTML = rowsHtml;
 
     } catch (err) {
         console.error("Error loading train details:", err);
-        if (stopsContainer) {
-            stopsContainer.innerHTML = `<p style="color: #dc2626; padding: 20px;">Error loading train route.</p>`;
+        if (stopsBody) {
+            stopsBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #dc2626; padding: 20px;">
+                        Error loading train route.
+                    </td>
+                </tr>`;
         }
     }
 }
