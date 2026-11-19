@@ -1,4 +1,4 @@
-package com.tt.traintravellermod;
+package com.tt.traintravelermod;
 
 import com.google.gson.reflect.TypeToken;
 import com.mojang.logging.LogUtils;
@@ -25,16 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Mod(CreateTrainTraveller.MODID)
-public class CreateTrainTraveller {
-    public static final String MODID = "createtraintraveller";
+@Mod(CreateTrainTraveler.MODID)
+public class CreateTrainTraveler {
+    public static final String MODID = "createtraintraveler";
     public static final Logger LOGGER = LogUtils.getLogger();
     private static final Type LIST_MAP_TYPE = new TypeToken<List<Map<String, Object>>>() {}.getType();
     private static final Type MAP_TYPE = new TypeToken<Map<String, Object>>() {}.getType();
 
     private int tickCounter = 0;
 
-    public CreateTrainTraveller(IEventBus modEventBus, ModContainer modContainer) {
+    public CreateTrainTraveler(IEventBus modEventBus, ModContainer modContainer) {
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -129,6 +129,6 @@ public class CreateTrainTraveller {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        TrainTravellerCommand.register(event.getDispatcher());
+        TrainTravelerCommand.register(event.getDispatcher());
     }
 }

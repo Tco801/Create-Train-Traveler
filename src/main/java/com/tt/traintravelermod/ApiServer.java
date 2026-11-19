@@ -1,4 +1,4 @@
-package com.tt.traintravellermod;
+package com.tt.traintravelermod;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 
 public class ApiServer {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ApiServer.class);
-    private static final String WEB_ROOT = "/assets/createtraintraveller/web";
+    private static final String WEB_ROOT = "/assets/createtraintraveler/web";
 
     private static HttpServer server;
     private static ExecutorService executor;

@@ -8,34 +8,12 @@ import {
     getStationTagName,
     extractSections
 } from "./api.js";
+import { initGlobalHeader } from "./header-search.js";
 
-const mcTimeSpan = document.getElementById("mcTime");
-const serverStatusSpan = document.getElementById("serverStatus");
-const dashboardStats = document.getElementById("dashboardStats");
+initGlobalHeader("home");
+
 const stationsList = document.getElementById("stationList");
 const activeTrainsList = document.getElementById("nextDepartures");
-const stationSearch = document.getElementById("stationSearch") || document.getElementById("search");
-
-let allStations = [];
-
-async function updateClock() {
-    try {
-        const timeData = await getTime();
-        if (timeData && timeData.time !== undefined) {
-            if (mcTimeSpan) {
-                mcTimeSpan.textContent = `Minecraft time: ${minecraftTimeToClock(timeData.time)}`;
-            }
-            if (serverStatusSpan) {
-                serverStatusSpan.textContent = "🟢 Server Online";
-            }
-        }
-    } catch (err) {
-        console.error("Error fetching time:", err);
-        if (serverStatusSpan) {
-            serverStatusSpan.textContent = "🔴 Server Offline";
-        }
-    }
-}
 
 function isStationAllowed(st) {
     if (!st || typeof st !== "object") return Boolean(st);
@@ -44,26 +22,11 @@ function isStationAllowed(st) {
     return true;
 }
 
-function renderStats(stationsCount, trainsCount) {
-    if (!dashboardStats) return;
-
-    dashboardStats.innerHTML = `
-        <div class="stat-card">
-            <span class="stat-value">${stationsCount}</span>
-            <span class="stat-label">Active Stations</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-value">${trainsCount}</span>
-            <span class="stat-label">Trains in Service</span>
-        </div>
-    `;
-}
-
 function renderStations(stations) {
     if (!stationsList) return;
 
     if (!stations || stations.length === 0) {
-        stationsList.innerHTML = `<p style="padding: 15px; color: #64748b;">No stations found.</p>`;
+        stationsList.innerHTML = `<p style="color: #4b5563;">No stations found.</p>`;
         return;
     }
 
@@ -72,23 +35,46 @@ function renderStations(stations) {
         if (!name) return "";
         return `
             <a href="station.html?name=${encodeURIComponent(name)}" class="station-card">
-                <span class="station-icon">🚉</span>
-                <span class="station-name">${name}</span>
-                <span class="arrow">→</span>
+                <span>${name}</span>
+                <span class="arrow">&rarr;</span>
             </a>
         `;
     }).join("");
 }
 
-async function renderActiveTrains(enrichedTrains) {
+function getNextDepartureTicks(journey, currentWorldTicks) {
+    const sections = extractSections(journey);
+    const currentSecIdx = journey?.current_section_index ?? 0;
+    const activeSection = sections.find(s => s.index === currentSecIdx) || sections[0];
+    if (!activeSection || !Array.isArray(activeSection.stops) || activeSection.stops.length === 0) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    const curStopIdx = Math.max(0, activeSection.currentStopIndex ?? 0);
+    const stop = activeSection.stops[curStopIdx] || activeSection.stops[0];
+    const dep = stop.realtime?.departure ?? stop.scheduled?.departure ?? stop.realtime?.arrival ?? stop.scheduled?.arrival;
+    if (dep === undefined || dep === null) return Number.MAX_SAFE_INTEGER;
+
+    if (typeof currentWorldTicks === "number" && currentWorldTicks > 0) {
+        let diff = (dep - currentWorldTicks) % 24000;
+        if (diff < 0) diff += 24000;
+        return diff;
+    }
+    return Number(dep);
+}
+
+async function renderNextDepartures(enrichedTrains) {
     if (!activeTrainsList) return;
 
     if (!Array.isArray(enrichedTrains) || enrichedTrains.length === 0) {
-        activeTrainsList.innerHTML = `<p style="padding: 15px; color: #64748b;">No trains currently in service.</p>`;
+        activeTrainsList.innerHTML = `<p style="color: #4b5563;">No trains found.</p>`;
         return;
     }
 
-    const cardsHtml = await Promise.all(enrichedTrains.map(async ({ train, journey }) => {
+    // Limita ai prossimi 3 treni a partire
+    const topThree = enrichedTrains.slice(0, 3);
+
+    const cardsHtml = await Promise.all(topThree.map(async ({ train, journey }) => {
         const trainName = train.train_name || train.name || train.id || "Train";
         const trainIdParam = train.id ?? train.train_id ?? train.uuid ?? trainName;
 
@@ -108,30 +94,42 @@ async function renderActiveTrains(enrichedTrains) {
                 : (rawCategory || "Train");
             const bgColor = (typeof rawCategory === "object" && rawCategory?.color && rawCategory.color !== "#00000000")
                 ? rawCategory.color
-                : "#173252";
+                : "#b91c1c";
             categoryHtml = `<span class="category-pill" style="background-color: ${bgColor};">${catText}</span>`;
         }
 
-        const routeTitle = activeSection
-            ? `${activeSection.origin} → ${activeSection.destination}`
-            : (getStationTagName(train.next_station) ? `To ${getStationTagName(train.next_station)}` : "In service");
+        const originName = activeSection?.origin || "Origine";
+        const destName = activeSection?.destination || getStationTagName(train.next_station) || "Destinazione";
 
-        let stopsSummary = "";
-        if (activeSection && activeSection.stops.length > 0) {
-            const stopNames = activeSection.stops.map(s => getStationTagName(s)).filter(Boolean);
-            stopsSummary = `<div class="train-stops-mini"><strong>Stops:</strong> ${stopNames.join(" • ")}</div>`;
+        const curStopIdx = Math.max(0, activeSection?.currentStopIndex ?? 0);
+        const nextStopObj = activeSection?.stops?.[curStopIdx] || activeSection?.stops?.[0];
+        const nextDepRaw = nextStopObj?.realtime?.departure ?? nextStopObj?.scheduled?.departure;
+        const depBadge = nextDepRaw !== undefined ? minecraftTimeToClock(nextDepRaw) : "In course";
+
+        let intermediateHtml = "";
+        if (activeSection && activeSection.stops.length > 2) {
+            const mids = activeSection.stops
+                .slice(1, -1)
+                .map(s => getStationTagName(s))
+                .filter(Boolean);
+            if (mids.length > 0) {
+                intermediateHtml = `<div class="departure-stops-line"><strong>Intermediate stops:</strong> ${mids.join(" - ")}</div>`;
+            }
         }
 
         return `
-            <a href="train.html?id=${encodeURIComponent(trainIdParam)}" class="departure-card train-card">
-                <div class="train-card-header">
-                    <div>${categoryHtml}</div>
-                    <strong class="train-number">${trainName}</strong>
+            <a href="train.html?id=${encodeURIComponent(trainIdParam)}" class="departure-card">
+                <div class="departure-card-top">
+                    <div class="departure-train-identity">
+                        ${categoryHtml}
+                        <span class="departure-train-name">${trainName}</span>
+                    </div>
+                    <span class="departure-time-badge">${depBadge}</span>
                 </div>
-                <div class="train-card-route">
-                    ${routeTitle}
+                <div class="departure-route-line">
+                    ${originName} &rarr; ${destName}
                 </div>
-                ${stopsSummary}
+                ${intermediateHtml}
             </a>
         `;
     }));
@@ -141,26 +139,33 @@ async function renderActiveTrains(enrichedTrains) {
 
 async function loadHome() {
     try {
-        const [stationsData, trainsData] = await Promise.all([
+        const [stationsData, trainsData, timeData] = await Promise.all([
             getStations(),
-            getTrains()
+            getTrains(),
+            getTime().catch(() => null)
         ]);
 
+        const currentWorldTicks = timeData?.time ?? 0;
         const trainsArray = Array.isArray(trainsData) ? trainsData : (trainsData?.trains || []);
+
         const enrichedTrains = await Promise.all(trainsArray.map(async (train) => {
             const trainId = train.id ?? train.train_id ?? train.uuid ?? train.train_name;
             let journey = null;
             if (trainId !== undefined && trainId !== null) {
                 try {
                     journey = await getJourney(trainId);
-                } catch (e) {
-                    console.warn(`Journey unavailable for ${trainId}:`, e);
-                }
+                } catch {}
             }
-            return { train, journey };
+            return {
+                train,
+                journey,
+                sortDelta: getNextDepartureTicks(journey, currentWorldTicks)
+            };
         }));
 
-        // Raccoglie i nomi delle stazioni effettivamente servite da sezioni utilizzabili (esclude blacklist/depositi)
+        enrichedTrains.sort((a, b) => a.sortDelta - b.sortDelta);
+
+        // Stazioni pubbliche (usando i station tag di CRN ed escludendo quelle in blacklist)
         const servedStationNames = new Set();
         for (const { journey } of enrichedTrains) {
             const sections = extractSections(journey);
@@ -182,7 +187,6 @@ async function loadHome() {
             if (!name) continue;
             const lowerName = name.trim().toLowerCase();
 
-            // Se ci sono treni attivi, filtra via le stazioni blacklistate non presenti in nessuna sezione usabile
             if (servedStationNames.size > 0 && !servedStationNames.has(lowerName)) {
                 continue;
             }
@@ -192,37 +196,18 @@ async function loadHome() {
             }
         }
 
-        allStations = Array.from(uniqueMap.values()).sort((a, b) => {
+        const sortedStations = Array.from(uniqueMap.values()).sort((a, b) => {
             const nameA = getStationTagName(a) || "";
             const nameB = getStationTagName(b) || "";
             return nameA.localeCompare(nameB);
         });
 
-        renderStats(allStations.length, trainsArray.length);
-        renderStations(allStations);
-        await renderActiveTrains(enrichedTrains);
+        renderStations(sortedStations);
+        await renderNextDepartures(enrichedTrains);
     } catch (err) {
         console.error("Error loading Home:", err);
     }
 }
 
-if (stationSearch) {
-    stationSearch.addEventListener("input", (e) => {
-        const term = e.target.value.trim().toLowerCase();
-        if (!term) {
-            renderStations(allStations);
-            return;
-        }
-        const filtered = allStations.filter(st => {
-            const name = getStationTagName(st) || "";
-            return name.toLowerCase().includes(term);
-        });
-        renderStations(filtered);
-    });
-}
-
-updateClock();
 loadHome();
-
-setInterval(updateClock, 2000);
 setInterval(loadHome, 15000);

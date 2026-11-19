@@ -8,8 +8,8 @@ version="${mod_version}"
 displayName="${mod_name}"
 # Impedisce ai client vanilla di venire bloccati se non hanno questa mod installata
 displayTest="IGNORE_ALL_VERSION"
-displayURL="https://github.com/Tco801/Create-Train-Traveller"
-issueTrackerURL="https://github.com/Tco801/Create-Train-Traveller/issues"
+displayURL="https://github.com/Tco801/Create-Train-Traveler"
+issueTrackerURL="https://github.com/Tco801/Create-Train-Traveler/issues"
 #logoFile="logo.png"
 authors="PlayerE464"
 description='''

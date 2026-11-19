@@ -1,4 +1,4 @@
-package com.tt.traintravellermod;
+package com.tt.traintravelermod;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.ChatFormatting;
@@ -9,11 +9,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 
-public class TrainTravellerCommand {
+public class TrainTravelerCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
-            Commands.literal("traintraveller")
+            Commands.literal("traintraveler")
                 .then(Commands.literal("website")
                     .executes(context -> {
                         String url = buildWebsiteUrl();
@@ -25,12 +25,12 @@ public class TrainTravellerCommand {
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
                                 .withHoverEvent(new HoverEvent(
                                     HoverEvent.Action.SHOW_TEXT,
-                                    Component.literal("Click to open the Create: Train Traveller")
+                                    Component.literal("Click to open the Create: Train Traveler")
                                         .withStyle(ChatFormatting.GRAY)
                                 ))
                             );
 
-                        MutableComponent message = Component.literal("[Train Traveller] ")
+                        MutableComponent message = Component.literal("[Train Traveler] ")
                             .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
                             .append(Component.literal("Live Dashboard: ").withStyle(ChatFormatting.WHITE))
                             .append(link);

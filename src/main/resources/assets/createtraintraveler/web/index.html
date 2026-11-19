@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Train Traveler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="globalHeader" class="main-header"></header>
+
+    <main class="container">
+        <div class="home-split-grid">
+            <!-- Colonna Stazioni -->
+            <section class="glass-panel">
+                <h2 class="section-title">Stations</h2>
+                <p class="section-subtitle">Active stations in the railway network</p>
+                <div id="stationList" class="station-list-column"></div>
+            </section>
+
+            <!-- Colonna Prossime Partenze (Prossimi 3 treni a partire) -->
+            <section class="glass-panel">
+                <h2 class="section-title">Next Departures</h2>
+                <p class="section-subtitle">Next 3 trains in departure</p>
+                <div id="nextDepartures" class="departures-list"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer id="globalFooter" class="main-footer">
+        <div>made by PlayerE464</div>
+        <div>Create train traveler V0.0.4-Alpha</div>
+    </footer>
+
+    <script type="module" src="home.js"></script>
+</body>
+</html>

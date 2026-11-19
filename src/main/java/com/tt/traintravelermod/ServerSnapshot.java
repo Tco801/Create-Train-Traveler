@@ -1,4 +1,4 @@
-package com.tt.traintravellermod;
+package com.tt.traintravelermod;
 
 import java.util.Collections;
 import java.util.List;

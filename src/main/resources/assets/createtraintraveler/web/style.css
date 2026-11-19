@@ -1,0 +1,547 @@
+/* Reset Globale */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #e5e7eb 100%);
+  color: #111827;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Globale (uguale su tutte le pagine) */
+.main-header {
+  background: rgba(185, 28, 28, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #ffffff;
+  border-bottom: 1.5px solid #111827;
+  padding: 14px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.brand-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.plan-route-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  opacity: 0.92;
+  transition: opacity 0.15s ease;
+}
+
+.plan-route-link:hover,
+.plan-route-link.active {
+  opacity: 1;
+  color: #fecaca;
+}
+
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Status & Orologio compatto nell'header */
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #22c55e;
+  border: 1px solid #111827;
+}
+
+.status-dot.offline {
+  background-color: #ef4444;
+}
+
+/* Barra di Ricerca Globale nell'Header */
+.global-search-form {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #111827;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.global-search-form input {
+  border: none;
+  background: transparent;
+  padding: 7px 12px;
+  font-size: 0.9rem;
+  color: #111827;
+  min-width: 220px;
+  outline: none;
+}
+
+.global-search-form button {
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  padding: 7px 13px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.global-search-form button:hover {
+  background: #374151;
+}
+
+/* Container Principale */
+.container {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  flex: 1;
+}
+
+/* Pannello di Vetro (Glassmorphism) */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #111827;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+  border-bottom: 1.5px solid #111827;
+  padding-bottom: 8px;
+}
+
+.section-subtitle {
+  font-size: 0.88rem;
+  color: #4b5563;
+  margin-bottom: 16px;
+}
+
+/* Griglia Home: Stazioni + Prossime Partenze */
+.home-split-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .home-split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Lista Stazioni (Home) */
+.station-list-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.station-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #111827;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.station-card:hover {
+  background: rgba(254, 226, 226, 0.85);
+  border-color: #b91c1c;
+  transform: translateX(3px);
+}
+
+.station-card .arrow {
+  font-weight: 800;
+  color: #b91c1c;
+}
+
+/* Card Prossime Partenze (Home - NO EMOJI) */
+.departures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.departure-card {
+  display: block;
+  text-decoration: none;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #111827;
+  border-radius: 10px;
+  padding: 16px 18px;
+  transition: all 0.15s ease;
+}
+
+.departure-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #b91c1c;
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.12);
+}
+
+.departure-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #111827;
+}
+
+.departure-train-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.departure-train-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.departure-time-badge {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.8);
+  border: 1px solid #111827;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.departure-route-line {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.departure-stops-line {
+  font-size: 0.86rem;
+  color: #374151;
+}
+
+/* Loghi & Pill Categorie */
+.operator-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display: inline-block;
+}
+
+.category-pill {
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #111827;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+/* Tabelle Stile Pannello di Vetro con Righe Nere Sottili */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #111827;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+table.glass-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.glass-table thead {
+  background: rgba(185, 28, 28, 0.9);
+  color: #ffffff;
+}
+
+table.glass-table th,
+table.glass-table td {
+  padding: 11px 14px;
+  border: 1px solid #111827;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+table.glass-table th {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.4px;
+}
+
+table.glass-table tbody tr {
+  background: rgba(255, 255, 255, 0.6);
+  transition: background 0.12s ease;
+}
+
+table.glass-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Evidenziazione Rosso Chiaro Stazioni di Partenza e Arrivo (Dettaglio Treno) */
+table.glass-table tbody tr.endpoint-row {
+  background: rgba(254, 202, 202, 0.78) !important;
+  font-weight: 700;
+}
+
+table.glass-table tbody tr.current-stop-row {
+  background: rgba(254, 240, 138, 0.82) !important;
+  font-weight: 700;
+}
+
+table.glass-table tbody tr.passed-stop-row {
+  opacity: 0.62;
+}
+
+/* Banner Next Station (Dettaglio Treno) */
+.next-station-banner {
+  background: rgba(254, 226, 226, 0.78);
+  border: 1.5px solid #111827;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.next-station-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #b91c1c;
+}
+
+.next-station-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.next-station-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.metric-box {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #111827;
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+
+.metric-box span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.metric-box strong {
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+/* Dettaglio Ritardo nelle Celle (Previsto vs Effettivo) */
+.time-delayed-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.84rem;
+}
+
+.time-scheduled-label {
+  color: #4b5563;
+  text-decoration: line-through;
+}
+
+.time-actual-label {
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+.delay-badge {
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+/* Marquee Scorrevole Colonna Infos (Station Details) */
+.infos-marquee-cell {
+  max-width: 280px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee-scroll 14s linear infinite;
+}
+
+.infos-marquee-cell:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Form Ricerca Percorsi (Navigate) */
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.input-group {
+  flex: 1;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #111827;
+}
+
+.input-group input {
+  padding: 10px 14px;
+  border: 1px solid #111827;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.btn-swap {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #111827;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.btn-primary {
+  background: #b91c1c;
+  color: #ffffff;
+  border: 1px solid #111827;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: #991b1b;
+}
+
+/* Link Interni nelle Tabelle */
+.table-link {
+  color: #111827;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.table-link:hover {
+  color: #b91c1c;
+}
+
+/* Footer Globale (uguale su tutte le pagine) */
+.main-footer {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1.5px solid #111827;
+  padding: 14px 24px;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #111827;
+  margin-top: auto;
+}

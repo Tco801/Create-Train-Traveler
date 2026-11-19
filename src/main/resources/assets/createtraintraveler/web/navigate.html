@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Route - Create Train Traveler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="globalHeader" class="main-header"></header>
+
+    <main class="container">
+        <section class="glass-panel">
+            <h2 class="section-title">Plan Route</h2>
+            <p class="section-subtitle">Calculate direct or connecting travel solutions</p>
+
+            <form id="searchForm" class="search-form">
+                <div class="input-group">
+                    <label for="fromStation">Departure</label>
+                    <input id="fromStation" type="text" placeholder="Departure station" list="stationsList" autocomplete="off" required>
+                </div>
+
+                <button type="button" id="swapBtn" class="btn-swap" title="Invert stations">Invert</button>
+
+                <div class="input-group">
+                    <label for="toStation">Arrival</label>
+                    <input id="toStation" type="text" placeholder="Arrival station" list="stationsList" autocomplete="off" required>
+                </div>
+
+                <datalist id="stationsList"></datalist>
+
+                <button type="submit" id="searchBtn" class="btn-primary">Find Route</button>
+            </form>
+        </section>
+
+        <section id="results"></section>
+    </main>
+
+    <footer id="globalFooter" class="main-footer">
+        <div>made by PlayerE464</div>
+        <div>Create train traveler V0.0.4-Alpha</div>
+    </footer>
+
+    <script type="module" src="navigate.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Details - Create Train Traveler</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="globalHeader" class="main-header"></header>
+
+    <main class="container">
+        <!-- Intestazione Treno: Logo + Nome Treno + Categoria -->
+        <section class="glass-panel">
+            <div id="trainName" style="display: flex; align-items: center; gap: 14px;">Loading...</div>
+        </section>
+
+        <!-- Banner Prossima Stazione -->
+        <section id="nextStationBanner" class="next-station-banner" style="display: none;"></section>
+
+        <!-- ACTUAL SECTION (con ritardo e previsto/effettivo) -->
+        <section class="glass-panel">
+            <h3 class="section-title">Actual Section</h3>
+            <p id="actualSectionSubtitle" class="section-subtitle"></p>
+            <div class="table-wrapper">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>Station</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Delay</th>
+                            <th>Platform</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actualStops"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- NEXT SECTION (senza mostrare ritardo) -->
+        <section id="nextSectionCard" class="glass-panel" style="display: none;">
+            <h3 class="section-title">Next Section</h3>
+            <p id="nextSectionSubtitle" class="section-subtitle"></p>
+            <div class="table-wrapper">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>Station</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Platform</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nextStops"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- NEXT 4 CONNECTIONS (alla prossima stazione) -->
+        <section id="connectionsCard" class="glass-panel" style="display: none;">
+            <h3 id="connectionsTitle" class="section-title">Next 4 Connections</h3>
+            <div class="table-wrapper">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>Train</th>
+                            <th>Category</th>
+                            <th>Destination</th>
+                            <th>Arrival</th>
+                            <th>Departure</th>
+                            <th>Delay</th>
+                            <th>Infos</th>
+                            <th>Platform</th>
+                        </tr>
+                    </thead>
+                    <tbody id="connectionsBoard"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer id="globalFooter" class="main-footer">made by PlayerE464</footer>
+    <footer id="globalFooter" class="main-footer">Create train traveler <V0 class="0 4-Alpha"></V0></footer>
+
+    <script type="module" src="train.js"></script>
+</body>
+</html>
