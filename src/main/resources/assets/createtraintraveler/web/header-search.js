@@ -1,7 +1,30 @@
 import { getStations, getTrains, getTime, minecraftTimeToClock, getStationTagName } from "./api.js";
 
+const THEME_STORAGE_KEY = "ctt-theme";
+
+function resolveInitialTheme() {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "dark" || saved === "light") return saved;
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return prefersDark ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    const btn = document.getElementById("themeToggleBtn");
+    if (btn) {
+        btn.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    }
+}
+
+// Applica subito il tema all'import del modulo per evitare flash bianchi
+applyTheme(resolveInitialTheme());
+
 export function initGlobalHeader(activePage = "") {
+    const currentTheme = resolveInitialTheme();
     const header = document.getElementById("globalHeader");
+
     if (header) {
         header.innerHTML = `
             <div class="header-left">
@@ -9,6 +32,9 @@ export function initGlobalHeader(activePage = "") {
                 <a href="navigate.html" class="plan-route-link ${activePage === "navigate" ? "active" : ""}">PLAN ROUTE</a>
             </div>
             <div class="header-right">
+                <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle color theme">
+                    ${currentTheme === "dark" ? "Light Mode" : "Dark Mode"}
+                </button>
                 <div class="header-status">
                     <span id="statusDot" class="status-dot"></span>
                     <span id="serverStatus">Server Online</span>
@@ -30,9 +56,20 @@ export function initGlobalHeader(activePage = "") {
         `;
     }
 
+    const themeBtn = document.getElementById("themeToggleBtn");
+    if (themeBtn) {
+        themeBtn.addEventListener("click", () => {
+            const activeTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+            applyTheme(activeTheme === "dark" ? "light" : "dark");
+        });
+    }
+
     const footer = document.getElementById("globalFooter");
     if (footer) {
-        footer.textContent = "made by PlayerE464";
+        footer.innerHTML = `
+            <div>made by PlayerE464</div>
+            <div>Create Train Traveler v0.0.5-beta</div>
+        `;
     }
 
     const mcTimeSpan = document.getElementById("minecraftTime");

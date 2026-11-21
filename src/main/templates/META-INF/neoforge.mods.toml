@@ -10,7 +10,7 @@ displayName="${mod_name}"
 displayTest="IGNORE_ALL_VERSION"
 displayURL="https://github.com/Tco801/Create-Train-Traveler"
 issueTrackerURL="https://github.com/Tco801/Create-Train-Traveler/issues"
-#logoFile="logo.png"
+logoFile="src/main/resources/assets/createtraintraveler/logo.png"
 authors="PlayerE464"
 description='''
 Server-side web dashboard and live telemetry API for Create Railways Navigator.

@@ -1,3 +1,54 @@
+/* Variabili Tema (Light Default & Dark Mode) */
+:root {
+  --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #e5e7eb 100%);
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --text-subtle: #374151;
+  --border-color: #111827;
+  --panel-bg: rgba(255, 255, 255, 0.65);
+  --panel-shadow: rgba(15, 23, 42, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-hover-bg: rgba(255, 255, 255, 0.95);
+  --station-hover-bg: rgba(254, 226, 226, 0.85);
+  --input-bg: rgba(255, 255, 255, 0.88);
+  --table-wrapper-bg: rgba(255, 255, 255, 0.72);
+  --table-row-bg: rgba(255, 255, 255, 0.6);
+  --table-row-hover: rgba(255, 255, 255, 0.95);
+  --endpoint-row-bg: rgba(254, 202, 202, 0.78);
+  --current-stop-bg: rgba(254, 240, 138, 0.82);
+  --banner-bg: rgba(254, 226, 226, 0.78);
+  --metric-bg: rgba(255, 255, 255, 0.82);
+  --accent-red: #b91c1c;
+  --accent-red-hover: #991b1b;
+  --accent-badge-bg: rgba(254, 226, 226, 0.8);
+  --footer-bg: rgba(255, 255, 255, 0.72);
+}
+
+[data-theme="dark"] {
+  --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e293b 100%);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-subtle: #d1d5db;
+  --border-color: #374151;
+  --panel-bg: rgba(17, 24, 39, 0.72);
+  --panel-shadow: rgba(0, 0, 0, 0.45);
+  --card-bg: rgba(31, 41, 55, 0.75);
+  --card-hover-bg: rgba(55, 65, 81, 0.9);
+  --station-hover-bg: rgba(127, 29, 29, 0.45);
+  --input-bg: rgba(31, 41, 55, 0.92);
+  --table-wrapper-bg: rgba(17, 24, 39, 0.75);
+  --table-row-bg: rgba(31, 41, 55, 0.62);
+  --table-row-hover: rgba(55, 65, 81, 0.88);
+  --endpoint-row-bg: rgba(127, 29, 29, 0.55);
+  --current-stop-bg: rgba(133, 77, 14, 0.55);
+  --banner-bg: rgba(127, 29, 29, 0.35);
+  --metric-bg: rgba(17, 24, 39, 0.82);
+  --accent-red: #f87171;
+  --accent-red-hover: #ef4444;
+  --accent-badge-bg: rgba(127, 29, 29, 0.5);
+  --footer-bg: rgba(17, 24, 39, 0.78);
+}
+
 /* Reset Globale */
 * {
   margin: 0;
@@ -7,11 +58,12 @@
 
 body {
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-  background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 50%, #e5e7eb 100%);
-  color: #111827;
+  background: var(--bg-gradient);
+  color: var(--text-main);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 /* Header Globale (uguale su tutte le pagine) */
@@ -20,7 +72,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #ffffff;
-  border-bottom: 1.5px solid #111827;
+  border-bottom: 1.5px solid var(--border-color);
   padding: 14px 24px;
   display: flex;
   flex-wrap: wrap;
@@ -72,6 +124,30 @@ body {
   gap: 14px;
 }
 
+/* Pulsante Toggle Tema */
+.theme-toggle-btn {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.97);
+}
+
 /* Status & Orologio compatto nell'header */
 .header-status {
   display: flex;
@@ -102,8 +178,8 @@ body {
 .global-search-form {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #111827;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -113,9 +189,13 @@ body {
   background: transparent;
   padding: 7px 12px;
   font-size: 0.9rem;
-  color: #111827;
+  color: var(--text-main);
   min-width: 220px;
   outline: none;
+}
+
+.global-search-form input::placeholder {
+  color: var(--text-muted);
 }
 
 .global-search-form button {
@@ -144,30 +224,30 @@ body {
 
 /* Pannello di Vetro (Glassmorphism) */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--panel-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 24px var(--panel-shadow);
   margin-bottom: 22px;
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 4px;
-  border-bottom: 1.5px solid #111827;
+  border-bottom: 1.5px solid var(--border-color);
   padding-bottom: 8px;
 }
 
 .section-subtitle {
   font-size: 0.88rem;
-  color: #4b5563;
+  color: var(--text-muted);
   margin-bottom: 16px;
 }
 
@@ -197,27 +277,27 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid #111827;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   text-decoration: none;
-  color: #111827;
+  color: var(--text-main);
   font-weight: 700;
   transition: all 0.15s ease;
 }
 
 .station-card:hover {
-  background: rgba(254, 226, 226, 0.85);
-  border-color: #b91c1c;
+  background: var(--station-hover-bg);
+  border-color: var(--accent-red);
   transform: translateX(3px);
 }
 
 .station-card .arrow {
   font-weight: 800;
-  color: #b91c1c;
+  color: var(--accent-red);
 }
 
-/* Card Prossime Partenze (Home - NO EMOJI) */
+/* Card Prossime Partenze (Home) */
 .departures-list {
   display: flex;
   flex-direction: column;
@@ -227,18 +307,18 @@ body {
 .departure-card {
   display: block;
   text-decoration: none;
-  color: #111827;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid #111827;
+  color: var(--text-main);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 16px 18px;
   transition: all 0.15s ease;
 }
 
 .departure-card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: #b91c1c;
-  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.12);
+  background: var(--card-hover-bg);
+  border-color: var(--accent-red);
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.16);
 }
 
 .departure-card-top {
@@ -248,7 +328,7 @@ body {
   gap: 12px;
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #111827;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .departure-train-identity {
@@ -260,15 +340,15 @@ body {
 .departure-train-name {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
 }
 
 .departure-time-badge {
   font-size: 1rem;
   font-weight: 800;
-  color: #b91c1c;
-  background: rgba(254, 226, 226, 0.8);
-  border: 1px solid #111827;
+  color: var(--accent-red);
+  background: var(--accent-badge-bg);
+  border: 1px solid var(--border-color);
   padding: 3px 10px;
   border-radius: 6px;
 }
@@ -281,7 +361,7 @@ body {
 
 .departure-stops-line {
   font-size: 0.86rem;
-  color: #374151;
+  color: var(--text-subtle);
 }
 
 /* Loghi & Pill Categorie */
@@ -296,19 +376,19 @@ body {
   color: #ffffff;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   font-size: 0.8rem;
   font-weight: 800;
   display: inline-block;
   text-transform: uppercase;
 }
 
-/* Tabelle Stile Pannello di Vetro con Righe Nere Sottili */
+/* Tabelle Stile Pannello di Vetro */
 .table-wrapper {
   overflow-x: auto;
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--table-wrapper-bg);
 }
 
 table.glass-table {
@@ -324,7 +404,7 @@ table.glass-table thead {
 table.glass-table th,
 table.glass-table td {
   padding: 11px 14px;
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   text-align: left;
   font-size: 0.92rem;
 }
@@ -337,22 +417,22 @@ table.glass-table th {
 }
 
 table.glass-table tbody tr {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--table-row-bg);
   transition: background 0.12s ease;
 }
 
 table.glass-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--table-row-hover);
 }
 
-/* Evidenziazione Rosso Chiaro Stazioni di Partenza e Arrivo (Dettaglio Treno) */
+/* Evidenziazione Stazioni di Partenza e Arrivo (Dettaglio Treno) */
 table.glass-table tbody tr.endpoint-row {
-  background: rgba(254, 202, 202, 0.78) !important;
+  background: var(--endpoint-row-bg) !important;
   font-weight: 700;
 }
 
 table.glass-table tbody tr.current-stop-row {
-  background: rgba(254, 240, 138, 0.82) !important;
+  background: var(--current-stop-bg) !important;
   font-weight: 700;
 }
 
@@ -362,8 +442,8 @@ table.glass-table tbody tr.passed-stop-row {
 
 /* Banner Next Station (Dettaglio Treno) */
 .next-station-banner {
-  background: rgba(254, 226, 226, 0.78);
-  border: 1.5px solid #111827;
+  background: var(--banner-bg);
+  border: 1.5px solid var(--border-color);
   border-radius: 10px;
   padding: 16px 20px;
   margin-bottom: 22px;
@@ -378,13 +458,13 @@ table.glass-table tbody tr.passed-stop-row {
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #b91c1c;
+  color: var(--accent-red);
 }
 
 .next-station-name {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-main);
 }
 
 .next-station-metrics {
@@ -394,8 +474,8 @@ table.glass-table tbody tr.passed-stop-row {
 }
 
 .metric-box {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid #111827;
+  background: var(--metric-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px 14px;
 }
@@ -405,12 +485,12 @@ table.glass-table tbody tr.passed-stop-row {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .metric-box strong {
   font-size: 1.05rem;
-  color: #111827;
+  color: var(--text-main);
 }
 
 /* Dettaglio Ritardo nelle Celle (Previsto vs Effettivo) */
@@ -422,17 +502,17 @@ table.glass-table tbody tr.passed-stop-row {
 }
 
 .time-scheduled-label {
-  color: #4b5563;
+  color: var(--text-muted);
   text-decoration: line-through;
 }
 
 .time-actual-label {
-  color: #b91c1c;
+  color: var(--accent-red);
   font-weight: 800;
 }
 
 .delay-badge {
-  color: #b91c1c;
+  color: var(--accent-red);
   font-weight: 800;
 }
 
@@ -482,21 +562,22 @@ table.glass-table tbody tr.passed-stop-row {
   font-size: 0.85rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: #111827;
+  color: var(--text-main);
 }
 
 .input-group input {
   padding: 10px 14px;
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--input-bg);
   font-size: 0.95rem;
-  color: #111827;
+  color: var(--text-main);
 }
 
 .btn-swap {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #111827;
+  background: var(--input-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
   cursor: pointer;
@@ -506,7 +587,7 @@ table.glass-table tbody tr.passed-stop-row {
 .btn-primary {
   background: #b91c1c;
   color: #ffffff;
-  border: 1px solid #111827;
+  border: 1px solid var(--border-color);
   padding: 10px 22px;
   border-radius: 8px;
   font-size: 0.95rem;
@@ -522,26 +603,26 @@ table.glass-table tbody tr.passed-stop-row {
 
 /* Link Interni nelle Tabelle */
 .table-link {
-  color: #111827;
+  color: var(--text-main);
   font-weight: 800;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .table-link:hover {
-  color: #b91c1c;
+  color: var(--accent-red);
 }
 
-/* Footer Globale (uguale su tutte le pagine) */
+/* Footer Globale */
 .main-footer {
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--footer-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-top: 1.5px solid #111827;
+  border-top: 1.5px solid var(--border-color);
   padding: 14px 24px;
   text-align: center;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-main);
   margin-top: auto;
 }
